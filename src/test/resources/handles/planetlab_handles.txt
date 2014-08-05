@@ -1,0 +1,7 @@
+planetlab4.tamu.edu
+planetlab1.cs.uml.edu
+planet-lab1.cs.ucr.edu
+planetlab1.cs.pitt.edu
+planetlab1.cs.uiuc.edu
+planetlab2.cs.uiuc.edu
+planetlab3.tamu.edu
