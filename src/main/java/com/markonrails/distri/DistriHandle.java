@@ -69,7 +69,7 @@ public class DistriHandle {
 				task.finishTask(result);
 			} catch (InvalidResultException e) {
 				task.failTask(e, curlee);
-				if (control != null || !task.isTerminated()) {
+				if (control != null && !task.isTerminated()) {
 					System.out.println(String.format(
 							"Add task for %d: %s", task.getTimesTried(), task.getUrlString()));
 					control.addTask(task);

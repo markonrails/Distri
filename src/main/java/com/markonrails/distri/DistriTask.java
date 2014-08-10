@@ -39,8 +39,8 @@ public class DistriTask {
 		this("", url);
 	}
 	
-	public DistriTask(String url, int totalTries) throws Exception {
-		this("", url, totalTries);
+	public DistriTask(String url, int maxTries) throws Exception {
+		this("", url, maxTries);
 	}
 	
 	public DistriTask(String userAgent, String url) throws Exception {
@@ -101,6 +101,10 @@ public class DistriTask {
 
 	public void setFailCallback(FailCallback failCallback) {
 		this.failCallback = failCallback;
+	}
+	
+	public void setUserAgent(String userAgent) {
+		this.userAgent = userAgent;
 	}
 
 	public Date getInitialTime() {

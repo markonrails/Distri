@@ -53,20 +53,20 @@ public class DistriControl {
 		controlTasksThread.start();
 	}
 	
-	public DistriHandle CreateHandle(String host, String user) {
-		return CreateHandle(DistriHandle.DEFAULT_MAX_TASK_COUNT,
+	public DistriHandle createHandle(String host, String user) {
+		return createHandle(DistriHandle.DEFAULT_MAX_TASK_COUNT,
 				host, DistriHandle.DEFAULT_PORT, user);
 	}
 	
-	public DistriHandle CreateHandle(String host, int port, String user) {
-		return CreateHandle(DistriHandle.DEFAULT_MAX_TASK_COUNT, host, port, user);
+	public DistriHandle createHandle(String host, int port, String user) {
+		return createHandle(DistriHandle.DEFAULT_MAX_TASK_COUNT, host, port, user);
 	}
 	
-	public DistriHandle CreateHandle(int maxTaskCount, String host, String user) {
-		return CreateHandle(maxTaskCount, host, DistriHandle.DEFAULT_PORT, user);
+	public DistriHandle createHandle(int maxTaskCount, String host, String user) {
+		return createHandle(maxTaskCount, host, DistriHandle.DEFAULT_PORT, user);
 	}
 	
-	public DistriHandle CreateHandle(int maxTaskCount, 
+	public DistriHandle createHandle(int maxTaskCount, 
 			String host, int port, String user) {
 		DistriHandle handle = new DistriHandle(this, maxTaskCount, host, port, user);
 		handles.add(handle);
