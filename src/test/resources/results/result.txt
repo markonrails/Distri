@@ -1,1 +1,14 @@
-result
+Finished 3220 tasks in 59286 ms
+Throughtput: 54.312991 /s
+Average latency: 26492.718323 ms
+
+Finished 1085 tasks in 32834 ms
+Throughtput: 33.045014 /s
+Average latency: 11927.270046 ms
+
+10 threads per handle:
+
+Finished 18366 tasks in 546523 ms
+Throughtput: 33.605173 /s
+Average latency: 249918.524338 ms
+

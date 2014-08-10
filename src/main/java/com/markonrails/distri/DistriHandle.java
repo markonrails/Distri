@@ -65,8 +65,33 @@ public class DistriHandle {
 				handle.setHostVisitTime(task.getUrl().getHost());
 				hostVisitTimeSet = true;
 				
-				DistriResult result = new DistriResult(curlee);
+				DistriResult result = null;
+				if (task.getRecurseDepth() > 0) {
+					result = new DistriResult(curlee, task.getLinkSelector());
+				} else {
+					result = new DistriResult(curlee);
+				}
 				task.finishTask(result);
+				
+				if (control != null && task.getRecurseDepth() > 0) {
+					for (String link : result.getQueryLinks()) {
+						String recurseUrl = null;
+						if (link == null || link.isEmpty() || link.equals("/")) {
+							recurseUrl = task.getUrl().getHost();
+						} else {
+							if (link.charAt(0) == '/' && link.charAt(1) != '/') {
+								recurseUrl = String.format("%s://%s%s", 
+										task.getUrl().getProtocol(),
+										task.getUrl().getHost(), link);
+							} else {
+								recurseUrl = link;
+							}
+						}
+						
+						DistriTask recurseTask = task.createRecurseTask(recurseUrl);
+						control.addTask(recurseTask);
+					}
+				}
 			} catch (InvalidResultException e) {
 				task.failTask(e, curlee);
 				if (control != null && !task.isTerminated()) {
@@ -76,6 +101,11 @@ public class DistriHandle {
 				}
 			} catch (Exception e) {
 				task.failTask(e, curlee);
+				if (curlee.isEmpty() && control != null && !task.isTerminated()) {
+					System.out.println(String.format(
+							"Add task for %d: %s", task.getTimesTried(), task.getUrlString()));
+					control.addTask(task);
+				}
 			} finally {
 				if (!hostVisitTimeSet) {
 					handle.setHostVisitTime(task.getUrl().getHost());

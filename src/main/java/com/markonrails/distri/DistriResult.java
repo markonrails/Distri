@@ -6,6 +6,11 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import com.markonrails.distri.exceptions.*;
 
 public class DistriResult {
@@ -18,6 +23,7 @@ public class DistriResult {
 
 	private ArrayList<String> httpHeaders;
 	private ArrayList<String> locations;
+	private ArrayList<String> queryLinks;
 	private HashMap<String, String> fields;
 	private HashMap<String, String> params;
 	private int code;
@@ -25,10 +31,15 @@ public class DistriResult {
 	private String content;
 	
 	public DistriResult(String curlee) throws InvalidResultException {
+		this(curlee, null);
+	}
+	
+	public DistriResult(String curlee, String query) throws InvalidResultException {
 		Date startTime = new Date();
 		
 		this.httpHeaders = new ArrayList<String>();
 		this.locations   = new ArrayList<String>();
+		this.queryLinks  = new ArrayList<String>();
 		this.fields = new HashMap<String, String>();
 		this.params = new HashMap<String, String>();
 		
@@ -40,6 +51,14 @@ public class DistriResult {
 		}
 		String httpHeaders = httpHeadersMatcher.group(0);
 		this.content = curlee.substring(httpHeadersMatcher.end());
+		
+		if (query != null && !query.isEmpty()) {
+			Document doc = Jsoup.parse(content);
+			Elements links = doc.select(query);
+			for (Element link : links) {
+				this.queryLinks.add(link.attr("href"));
+			}
+		}
 		
 		Pattern httpHeaderPattern = Pattern.compile(HTTP_HEADER_PATTERN);
 		Matcher httpHeaderMatcher = httpHeaderPattern.matcher(httpHeaders);
@@ -89,6 +108,10 @@ public class DistriResult {
 
 	public ArrayList<String> getLocations() {
 		return locations;
+	}
+
+	public ArrayList<String> getQueryLinks() {
+		return queryLinks;
 	}
 
 	public HashMap<String, String> getFields() {

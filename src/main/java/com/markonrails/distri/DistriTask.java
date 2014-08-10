@@ -19,6 +19,9 @@ public class DistriTask {
 	private int timesTried;
 	private int minWaitTime;
 	
+	private String linkSelector;
+	private final int recurseDepth;
+	
 	private FinishCallback finishCallback;
 	private FailCallback failCallback;
 	private TerminateCallback terminateCallback;
@@ -40,20 +43,34 @@ public class DistriTask {
 	}
 	
 	public DistriTask(String url, int maxTries) throws Exception {
-		this("", url, maxTries);
+		this("", url, maxTries, 0);
 	}
 	
 	public DistriTask(String userAgent, String url) throws Exception {
-		this(userAgent, url, DEFAULT_TOTAL_TRIES);
+		this(userAgent, url, DEFAULT_TOTAL_TRIES, 0);
 	}
 	
 	public DistriTask(String userAgent, String url, int maxTries) throws Exception {
+		this(userAgent, url, maxTries, 0);
+	}
+	
+	public DistriTask(String userAgent, String url, int maxTries, int recurseDepth) throws Exception {
 		this.initialTime = new Date();
 		this.userAgent = userAgent;
 		this.url = new URL(url);
 		this.maxTries = maxTries;
 		this.timesTried = 0;
 		this.minWaitTime = DEFAULT_MIN_WAIT_TIME;
+		this.recurseDepth = recurseDepth;
+	}
+	
+	public DistriTask createRecurseTask(String url) throws Exception {
+		DistriTask recurseTask = new DistriTask(userAgent, url, maxTries, recurseDepth - 1);
+		recurseTask.setLinkSelector(linkSelector);
+		recurseTask.setFinishCallback(finishCallback);
+		recurseTask.setFailCallback(failCallback);
+		recurseTask.setTerminateCallback(terminateCallback);
+		return recurseTask;
 	}
 	
 	public void finishTask(DistriResult result) {
@@ -107,6 +124,10 @@ public class DistriTask {
 		this.userAgent = userAgent;
 	}
 
+	public void setLinkSelector(String linkSelector) {
+		this.linkSelector = linkSelector;
+	}
+
 	public Date getInitialTime() {
 		return initialTime;
 	}
@@ -142,7 +163,7 @@ public class DistriTask {
 		return result;
 	}
 
-	public int getTotalTries() {
+	public int getMaxTries() {
 		return maxTries;
 	}
 
@@ -152,6 +173,14 @@ public class DistriTask {
 	
 	public int getMinWaitTime() {
 		return minWaitTime;
+	}
+
+	public String getLinkSelector() {
+		return linkSelector;
+	}
+
+	public int getRecurseDepth() {
+		return recurseDepth;
 	}
 
 }
