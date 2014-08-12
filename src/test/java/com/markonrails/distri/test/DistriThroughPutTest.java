@@ -13,8 +13,8 @@ import com.markonrails.distri.DistriTask;
 
 public class DistriThroughPutTest {
 
-	public static final String URLS_FILE = "/urls/amazon_urls.txt";
-	public static final String HANDLES_FILE = "/handles/planetlab_handles.txt";
+	public static final String URLS_FILE = "/urls/handle_urls.txt";
+	public static final String HANDLES_FILE = "/handles/two_handles.txt";
 	public static final String RESULTS_FOLDER = "/results";
 	
 	public static int taskCount;

@@ -7,7 +7,9 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 public class DistriControl {
 	
-	private HashMap<String, Integer> hostsMinIntervals;
+	public static final int DEFAULT_MIN_DELAY = 5;
+	
+	private HashMap<String, Integer> hostsMinDelays;
 
 	private ArrayList<DistriHandle> handles;
 	private HashMap<String, DistriHandle> handlesByHost;
@@ -19,7 +21,7 @@ public class DistriControl {
 	private boolean queuesChanged;
 	
 	public DistriControl() {
-		hostsMinIntervals = new HashMap<String, Integer>();
+		hostsMinDelays = new HashMap<String, Integer>();
 		
 		handles = new ArrayList<DistriHandle>();
 		handlesByHost = new HashMap<String, DistriHandle>();
@@ -37,9 +39,9 @@ public class DistriControl {
 				while (true) {
 					synchronized (queuesLock) {
 						try {
-							while (!queuesChanged) {
-								queuesLock.wait();
-							}
+							if (!queuesChanged) {
+								queuesLock.wait(1000);
+							} 
 							controlTasks();
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -68,6 +70,9 @@ public class DistriControl {
 	
 	public DistriHandle createHandle(int maxTaskCount, 
 			String host, int port, String user) {
+		if (handlesByHost.containsKey(host)) {
+			return getHandleByHost(host);
+		}
 		DistriHandle handle = new DistriHandle(this, maxTaskCount, host, port, user);
 		handles.add(handle);
 		handlesByHost.put(host, handle);
@@ -109,6 +114,7 @@ public class DistriControl {
 		
 		synchronized (queuesLock) {
 			tasksQueue.add(task);
+			task.setInitialTime();
 			
 			queuesChanged = true;
 			queuesLock.notifyAll();
@@ -134,20 +140,21 @@ public class DistriControl {
 		return handlesByHost.get(host);
 	}
 	
-	public Integer getHostMinInterval(String host) {
-		return hostsMinIntervals.get(host);
+	public Integer getHostMinDelay(String host) {
+		Integer ret = hostsMinDelays.get(host);
+		return ret == null ? DEFAULT_MIN_DELAY : ret;
 	}
 	
-	public void setHostMinInterval(String host, int minInterval) {
-		hostsMinIntervals.put(host, minInterval);
+	public void setHostMinDelay(String host, int minDelay) {
+		hostsMinDelays.put(host, minDelay);
 	}
 
 	public HashMap<String, Integer> getHostsMinIntervals() {
-		return hostsMinIntervals;
+		return hostsMinDelays;
 	}
 
 	public void setHostsMinIntervals(HashMap<String, Integer> hostsMinIntervals) {
-		this.hostsMinIntervals = hostsMinIntervals;
+		this.hostsMinDelays = hostsMinIntervals;
 	}
 
 	private class HandleAvailTaskCountComp implements Comparator<DistriHandle> {

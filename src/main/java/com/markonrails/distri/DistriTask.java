@@ -104,6 +104,10 @@ public class DistriTask {
 		return timesTried >= maxTries || result != null;
 	}
 	
+	public void setInitialTime() {
+		this.initialTime = new Date();
+	}
+	
 	public void setMinWaitTime(int minWaitTime) {
 		this.minWaitTime = minWaitTime;
 	}

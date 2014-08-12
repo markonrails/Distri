@@ -57,13 +57,9 @@ public class DistriHandle {
 			String command = String.format("%s \"%s\" \"%s\"", 
 					curlerPath, userAgent, url);
 			String curlee = "";
-			boolean hostVisitTimeSet = false;
 			
 			try {
 				curlee = handle.execCommand(command);
-				
-				handle.setHostVisitTime(task.getUrl().getHost());
-				hostVisitTimeSet = true;
 				
 				DistriResult result = null;
 				if (task.getRecurseDepth() > 0) {
@@ -107,9 +103,6 @@ public class DistriHandle {
 					control.addTask(task);
 				}
 			} finally {
-				if (!hostVisitTimeSet) {
-					handle.setHostVisitTime(task.getUrl().getHost());
-				}
 				if (control != null) {
 					System.out.println("Callback handle");
 					control.handleCallback(handle);
@@ -143,6 +136,7 @@ public class DistriHandle {
 	}
 	
 	public void execTask(DistriTask task) {
+		setHostVisitTime(task.getUrl().getHost());
 		Runnable curlerThread = new CurlerThread(this, task);
 		curlerThreadPool.execute(curlerThread);
 	}
@@ -164,12 +158,9 @@ public class DistriHandle {
 		Date curTime = new Date();
 		long timePassed = curTime.getTime() - visitTime.getTime();
 		
-		Integer minInterval = control.getHostMinInterval(task.getUrl().getHost());
-		if (minInterval == null) {
-			minInterval = 1;
-		}
+		Integer minDelay = control.getHostMinDelay(task.getUrl().getHost());
 		
-		return timePassed >= minInterval;
+		return timePassed >= minDelay;
 	}
 	
 	public boolean connect() throws Exception {

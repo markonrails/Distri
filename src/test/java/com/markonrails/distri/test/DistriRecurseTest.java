@@ -42,7 +42,11 @@ public class DistriRecurseTest {
 				DistriHandle handle = control.getHandleByHost(handleHost);
 				handle.setKeyPath("/Users/Chen/.ssh/id_rsa");
 				handle.setKnownHosts("/Users/Chen/.ssh/known_hosts");
-				handle.connect();
+				try {
+					handle.connect();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 
 				handleHost = handlesReader.readLine();
 				if (handleHost == null)
