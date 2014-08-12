@@ -69,23 +69,10 @@ public class DistriHandle {
 				}
 				task.finishTask(result);
 				
-				if (control != null && task.getRecurseDepth() > 0) {
-					for (String link : result.getQueryLinks()) {
-						String recurseUrl = null;
-						if (link == null || link.isEmpty() || link.equals("/")) {
-							recurseUrl = task.getUrl().getHost();
-						} else {
-							if (link.charAt(0) == '/' && link.charAt(1) != '/') {
-								recurseUrl = String.format("%s://%s%s", 
-										task.getUrl().getProtocol(),
-										task.getUrl().getHost(), link);
-							} else {
-								recurseUrl = link;
-							}
-						}
-						
-						DistriTask recurseTask = task.createRecurseTask(recurseUrl);
-						control.addTask(recurseTask);
+				if (control != null) {
+					control.addToCache(task.getUrlString(), result);
+					if (task.getRecurseDepth() > 0) {
+						control.recurseTask(task);
 					}
 				}
 			} catch (InvalidResultException e) {

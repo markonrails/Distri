@@ -1,9 +1,13 @@
 package com.markonrails.distri;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.PriorityBlockingQueue;
+
+import org.apache.commons.collections.map.LRUMap;
 
 public class DistriControl {
 	
@@ -19,6 +23,8 @@ public class DistriControl {
 	
 	private Object queuesLock;
 	private boolean queuesChanged;
+	
+	private Map<String, DistriResult> cache;
 	
 	public DistriControl() {
 		hostsMinDelays = new HashMap<String, Integer>();
@@ -112,6 +118,11 @@ public class DistriControl {
 	public void addTask(DistriTask task) {
 		if (task == null) return;
 		
+		if (cache.containsKey(task.getUrlString())) {
+			DistriResult result = cache.get(task.getUrlString());
+			task.finishTask(result);
+		}
+		
 		synchronized (queuesLock) {
 			tasksQueue.add(task);
 			task.setInitialTime();
@@ -130,6 +141,44 @@ public class DistriControl {
 			queuesChanged = true;
 			queuesLock.notifyAll();
 		}
+	}
+	
+	public void recurseTask(DistriTask task) throws Exception {
+		for (String link : task.getResult().getQueryLinks()) {
+			String recurseUrl = null;
+			if (link == null || link.isEmpty() || link.equals("/")) {
+				recurseUrl = task.getUrl().getHost();
+			} else {
+				if (link.charAt(0) == '/' && link.charAt(1) != '/') {
+					recurseUrl = String.format("%s://%s%s", 
+							task.getUrl().getProtocol(),
+							task.getUrl().getHost(), link);
+				} else {
+					recurseUrl = link;
+				}
+			}
+			
+			DistriTask recurseTask = task.createRecurseTask(recurseUrl);
+			addTask(recurseTask);
+		}
+	}
+	
+	public void addToCache(String url, DistriResult result) {
+		cache.put(url, result);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public boolean setCacheSize(int size) {
+		if (hasCache()) {
+			return ((LRUMap)cache).maxSize() == size;
+		} else {
+			cache = (Map<String, DistriResult>)Collections.synchronizedMap(new LRUMap(size));
+			return cache != null;
+		}
+	}
+	
+	public boolean hasCache() {
+		return cache != null;
 	}
 	
 	public ArrayList<DistriHandle> getHandles() {
