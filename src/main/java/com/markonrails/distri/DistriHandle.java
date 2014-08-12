@@ -70,7 +70,9 @@ public class DistriHandle {
 				task.finishTask(result);
 				
 				if (control != null) {
-					control.addToCache(task.getUrlString(), result);
+					if (control.hasCache()) {
+						control.addToCache(task.getUrlString(), result);
+					}
 					if (task.getRecurseDepth() > 0) {
 						control.recurseTask(task);
 					}

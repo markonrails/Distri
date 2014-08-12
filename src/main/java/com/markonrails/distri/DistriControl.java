@@ -118,7 +118,7 @@ public class DistriControl {
 	public void addTask(DistriTask task) {
 		if (task == null) return;
 		
-		if (cache.containsKey(task.getUrlString())) {
+		if (cache != null && cache.containsKey(task.getUrlString())) {
 			DistriResult result = cache.get(task.getUrlString());
 			task.finishTask(result);
 		}
